@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MQTT Web Client</title>
+    <script src="https://cdn.jsdelivr.net/npm/mqtt/dist/mqtt.min.js"></script>
+</head>
+<body>
+    <h1>MQTT Web Client</h1>
+
+    <!-- Authentication Form -->
+    <div>
+        <label for="username">Username:</label>
+        <input type="text" id="username" placeholder="Enter username">
+        <br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" placeholder="Enter password">
+        <br>
+        <button id="authenticateBtn">Authenticate</button>
+    </div>
+
+    <!-- Topic Subscription -->
+    <div>
+        <h3>Subscribe to a topic</h3>
+        <label for="subscribeTopic">Topic:</label>
+        <input type="text" id="subscribeTopic" placeholder="Enter topic">
+        <br>
+        <button id="subscribeBtn">Subscribe</button>
+    </div>
+
+    <!-- Publish Message -->
+    <div>
+        <h3>Publish a message</h3>
+        <label for="publishTopic">Topic:</label>
+        <input type="text" id="publishTopic" placeholder="Enter topic">
+        <br>
+        <label for="publishMessage">Message:</label>
+        <input type="text" id="publishMessage" placeholder="Enter message">
+        <br>
+        <button id="publishBtn">Publish</button>
+    </div>
+
+    <!-- Received Messages -->
+    <div>
+        <h3>Received Messages</h3>
+        <pre id="receivedMessages"></pre>
+    </div>
+
+<script>
+    const wsClient = new WebSocket('ws://localhost:8085');
+    let authenticated = false;
+
+    wsClient.onopen = function () {
+        console.log("WebSocket client connected");
+    };
+
+    wsClient.onmessage = function (event) {
+        const response = JSON.parse(event.data);
+        console.log('Received:', response);
+
+        if (response.success) {
+            if (response.message === 'Authentication successful') {
+                authenticated = true;
+                alert(response.message);
+            } else {
+                alert(response.message);
+            }
+        } else if (response.error) {
+            alert('Error: ' + response.error);
+        }
+    };
+
+    document.getElementById('authenticateBtn').addEventListener('click', () => {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        if (!username || !password) {
+            alert('Please enter both username and password');
+            return;
+        }
+
+        const authMessage = { username, password };
+        wsClient.send(JSON.stringify(authMessage));
+    });
+
+    document.getElementById('subscribeBtn').addEventListener('click', () => {
+        if (!authenticated) {
+            alert('Please authenticate first');
+            return;
+        }
+
+        const topic = document.getElementById('subscribeTopic').value;
+        if (!topic) {
+            alert('Please enter a topic');
+            return;
+        }
+
+        const subscribeMessage = { subscribe: topic };
+        wsClient.send(JSON.stringify(subscribeMessage));
+    });
+
+    document.getElementById('publishBtn').addEventListener('click', () => {
+        if (!authenticated) {
+            alert('Please authenticate first');
+            return;
+        }
+
+        const topic = document.getElementById('publishTopic').value;
+        const message = document.getElementById('publishMessage').value;
+
+        if (!topic || !message) {
+            alert('Please enter a topic and a message');
+            return;
+        }
+
+        const publishMessage = { publish: { topic, message } };
+        wsClient.send(JSON.stringify(publishMessage));
+    });
+</script>

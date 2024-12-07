@@ -1,0 +1,22 @@
+{
+  "name": "modbus-slave",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aedes": "^0.51.3",
+    "express": "^4.21.2",
+    "jsmodbus": "^4.0.10",
+    "mqtt": "^5.10.3",
+    "net": "^1.0.2",
+    "node-opcua": "^2.138.1",
+    "socket.io": "^4.8.1",
+    "ws": "^8.18.0"
+  }
+}
